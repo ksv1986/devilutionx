@@ -3302,7 +3302,8 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 	int8_t mLevel = monster.data().level;
 	if (!gbIsHellfire && monster.type().type == MT_DIABLO)
 		mLevel -= 15;
-
+	if (mLevel > CF_LEVEL)
+		mLevel = CF_LEVEL;
 	item.dwBuff |= CF_NEW_UNIQ;
 	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), mLevel, uper, onlygood, false, false);
 
