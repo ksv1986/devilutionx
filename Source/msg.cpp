@@ -1037,6 +1037,7 @@ void PrepareItemForNetwork(const Item &item, TCmdChItem &message)
 void RecreateItem(const Player &player, const TItem &messageItem, Item &item)
 {
 	const uint32_t dwBuff = SDL_SwapLE32(messageItem.dwBuff);
+	item.dwBuff = dwBuff;
 	RecreateItem(player, item,
 	    static_cast<_item_indexes>(SDL_SwapLE16(messageItem.wIndx)), SDL_SwapLE16(messageItem.wCI),
 	    SDL_SwapLE32(messageItem.dwSeed), SDL_SwapLE16(messageItem.wValue), (dwBuff & CF_HELLFIRE) != 0);
@@ -1052,7 +1053,6 @@ void RecreateItem(const Player &player, const TItem &messageItem, Item &item)
 	item._iMinMag = messageItem.bMinMag;
 	item._iMinDex = messageItem.bMinDex;
 	item._iAC = SDL_SwapLE16(messageItem.bAC);
-	item.dwBuff = dwBuff;
 }
 
 void RecreateItem(const Player &player, const TCmdPItem &message, Item &item)

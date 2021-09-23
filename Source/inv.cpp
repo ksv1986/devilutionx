@@ -1753,6 +1753,7 @@ int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, int is
 
 	Item item;
 
+	item.dwBuff = ibuff;
 	RecreateItem(*MyPlayer, item, idx, icreateinfo, iseed, ivalue, (ibuff & CF_HELLFIRE) != 0);
 	if (id != 0)
 		item._iIdentified = true;
@@ -1766,7 +1767,6 @@ int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, int is
 	item._iMinMag = minMag;
 	item._iMinDex = minDex;
 	item._iAC = ac;
-	item.dwBuff = ibuff;
 
 	return PlaceItemInWorld(std::move(item), position);
 }
