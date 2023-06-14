@@ -1133,11 +1133,14 @@ std::vector<OptionEntryBase *> GameplayOptions::GetEntries()
 
 ControllerOptions::ControllerOptions()
     : OptionCategoryBase("Controller", N_("Controller"), N_("Controller Settings"))
+	, rumble("Rumble", OptionEntryFlags::None, N_("Enable rumble"), N_("Play rumble effects if gamepad supports them."), true)
 {
 }
 std::vector<OptionEntryBase *> ControllerOptions::GetEntries()
 {
-	return {};
+	return {
+		&rumble,
+	};
 }
 
 NetworkOptions::NetworkOptions()

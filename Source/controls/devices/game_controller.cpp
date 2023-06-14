@@ -4,6 +4,8 @@
 
 #include "controls/controller_motion.h"
 #include "controls/devices/joystick.h"
+#include "options.h"
+#include "player.h"
 #include "utils/log.hpp"
 #include "utils/sdl2_backports.h"
 #include "utils/sdl_ptrs.h"
@@ -276,6 +278,73 @@ GamepadLayout GameController::getLayout(const SDL_Event &event)
 #endif
 	return GamepadLayout::Generic;
 #endif // !defined(DEVILUTIONX_GAMEPAD_TYPE)
+}
+
+namespace {
+
+static const Uint16 FULL_FORCE = 0xFFFFu;
+static const Uint16 HALF_FORCE = 0xFFFFu / 2;
+
+template<typename T>
+T Perc(int val, int base, T range)
+{
+	return val >= base
+		? range
+		: static_cast<T>(val * range / base);
+
+}
+
+Uint16 CalcForce(int val, int base)
+{
+	return HALF_FORCE + Perc(val, base, HALF_FORCE);
+}
+
+Uint32 CalcDuration(int val, int base, Uint32 range = 66)
+{
+	return range + Perc(val, base, range);
+}
+
+} // namespace
+
+void GameController::PlayRumble(Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms)
+{
+	if (!*sgOptions.Controller.rumble)
+		return;
+
+	for (auto &controller : controllers_) {
+		SDL_GameControllerRumble(controller.sdl_game_controller_, low_frequency_rumble, high_frequency_rumble, duration_ms);
+	}
+}
+
+void GameController::RumbleOnDead()
+{
+	BigRumble(FULL_FORCE, 333);
+}
+
+void GameController::RumbleOnDamage(int damage)
+{
+	const Uint16 force = CalcForce(damage, MyPlayer->_pMaxHP);
+	const Uint32 duration = CalcDuration(damage, MyPlayer->_pMaxHP, 133);
+
+	BigRumble(force, duration);
+}
+
+void GameController::RumbleOnBlock()
+{
+	SmallRumble(FULL_FORCE, 75);
+}
+
+void GameController::RumbleOnSpell(int8_t spellID)
+{
+	SmallRumble(FULL_FORCE, 100);
+}
+
+void GameController::RumbleOnHit(const Monster& monster, int damage)
+{
+	const Uint16 force = CalcForce(damage, monster.maxHitPoints);
+	const Uint32 duration = CalcDuration(damage, monster.maxHitPoints);
+
+	SmallRumble(force, duration);
 }
 
 } // namespace devilution

@@ -10,6 +10,7 @@
 
 #include "control.h"
 #include "controls/plrctrls.h"
+#include "controls/devices/game_controller.h"
 #include "cursor.h"
 #include "dead.h"
 #ifdef _DEBUG
@@ -680,6 +681,7 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 			dam = monster.hitPoints; /* ensure monster is killed with one hit */
 		}
 #endif
+		GameController::RumbleOnHit(monster, dam);
 		ApplyMonsterDamage(DamageType::Physical, monster, dam);
 	}
 
@@ -971,6 +973,8 @@ void DamageParryItem(Player &player)
 	if (&player != MyPlayer) {
 		return;
 	}
+
+	GameController::RumbleOnBlock();
 
 	if (player.InvBody[INVLOC_HAND_LEFT]._itype == ItemType::Shield || player.InvBody[INVLOC_HAND_LEFT]._itype == ItemType::Staff) {
 		if (player.InvBody[INVLOC_HAND_LEFT]._iDurability == DUR_INDESTRUCTIBLE) {
@@ -2720,6 +2724,10 @@ StartPlayerKill(Player &player, DeathReason deathReason)
 
 	player.Say(HeroSpeech::AuughUh);
 
+	if (&player == MyPlayer) {
+		GameController::RumbleOnDead();
+	}
+
 	// Are the current animations item dependend?
 	if (player._pgfxnum != 0) {
 		if (dropItems) {
@@ -2862,6 +2870,8 @@ void ApplyPlrDamage(DamageType damageType, Player &player, int dam, int minHP /*
 	RedrawComponent(PanelDrawComponent::Health);
 	player._pHitPoints -= totalDamage;
 	player._pHPBase -= totalDamage;
+	if (&player == MyPlayer)
+		GameController::RumbleOnDamage(totalDamage);
 	if (player._pHitPoints > player._pMaxHP) {
 		player._pHitPoints = player._pMaxHP;
 		player._pHPBase = player._pMaxHPBase;
@@ -3251,6 +3261,7 @@ void CheckPlrSpell(bool isShiftHeld, SpellID spellID, SpellType spellType)
 		LastMouseButtonAction = MouseActionType::Spell;
 		NetSendCmdLocParam4(true, CMD_SPELLXY, cursPosition, static_cast<int8_t>(spellID), static_cast<uint8_t>(spellType), spellLevel, spellFrom);
 	}
+	GameController::RumbleOnSpell(static_cast<int8_t>(spellID));
 }
 
 void SyncPlrAnim(Player &player)

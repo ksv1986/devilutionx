@@ -602,6 +602,9 @@ struct ControllerOptions : OptionCategoryBase {
 	ControllerOptions();
 	std::vector<OptionEntryBase *> GetEntries() override;
 
+	/** @brief Enable rumble effects */
+	OptionEntryBoolean rumble;
+
 	/** @brief SDL Controller mapping, see SDL_GameControllerDB. */
 	char szMapping[1024];
 	/** @brief Configure gamepad joysticks deadzone */

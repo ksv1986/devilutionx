@@ -9,6 +9,8 @@
 
 namespace devilution {
 
+struct Monster;
+
 class GameController {
 	static std::vector<GameController> controllers_;
 
@@ -20,6 +22,12 @@ public:
 	static const std::vector<GameController> &All();
 	static bool IsPressedOnAnyController(ControllerButton button, SDL_JoystickID *which = nullptr);
 
+	static void RumbleOnDead();
+	static void RumbleOnDamage(int damage);
+	static void RumbleOnBlock();
+	static void RumbleOnSpell(int8_t spellID);
+	static void RumbleOnHit(const Monster& monster, int damage);
+
 	// Must be called exactly once at the start of each SDL input event.
 	void UnlockTriggerState();
 
@@ -29,6 +37,15 @@ public:
 	static bool ProcessAxisMotion(const SDL_Event &event);
 	static SDL_GameControllerButton ToSdlGameControllerButton(ControllerButton button);
 	static GamepadLayout getLayout(const SDL_Event &event);
+
+private:
+	static void PlayRumble(Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
+	static void BigRumble(Uint16 force, Uint32 duration_ms) {
+		PlayRumble(force, 0, duration_ms);
+	}
+	static void SmallRumble(Uint16 force, Uint32 duration_ms) {
+		PlayRumble(0, force, duration_ms);
+	}
 
 private:
 	SDL_GameController *sdl_game_controller_ = NULL;

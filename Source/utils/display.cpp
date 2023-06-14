@@ -306,9 +306,18 @@ bool SpawnWindow(const char *lpWindowName)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
 
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+
+	initFlags |= SDL_INIT_HAPTIC;
 #endif
 	if (SDL_Init(initFlags) <= -1) {
-		ErrSdl();
+#ifndef USE_SDL1
+		initFlags &= ~SDL_INIT_HAPTIC;
+
+		if (SDL_Init(initFlags) <= -1)
+#endif
+		{
+			ErrSdl();
+		}
 	}
 	RegisterCustomEvents();
 
